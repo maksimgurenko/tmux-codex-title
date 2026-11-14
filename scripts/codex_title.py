@@ -14,6 +14,7 @@ import sys
 import tempfile
 import threading
 import time
+import uuid
 
 
 TITLE = "@codex-title"
@@ -133,7 +134,13 @@ def conversation_title(raw):
     title, separator, project = text.rpartition(" | ")
     if not separator or not project or not title.strip():
         return None
-    return title.strip()
+    title = title.strip()
+    try:
+        if str(uuid.UUID(title)) == title.lower():
+            return "codex"  # Some Codex versions emit a thread ID before naming it.
+    except ValueError:
+        pass
+    return title
 
 
 class Tmux:

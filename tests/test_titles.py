@@ -54,6 +54,7 @@ class SelectionTest(unittest.TestCase):
             ("Résumé | 日本語 | demo", "Résumé | 日本語"),
             ("$(touch unexpected); #[fg=red] #{pid} | demo", "$(touch unexpected); #[fg=red] #{pid}"),
             ("  spaced\t title | demo", "spaced title"),
+            ("12345678-1234-1234-1234-123456789abc | demo", "codex"),
         ):
             with self.subTest(raw=raw):
                 self.assertEqual(plugin.conversation_title(raw), expected)
@@ -230,6 +231,8 @@ while True:
         self.wait_for(lambda: self.name() == "codex")
         self.control(control, title="Now named | demo")
         self.wait_for(lambda: self.name() == "Now named")
+        self.control(control, title="12345678-1234-1234-1234-123456789abc | demo")
+        self.wait_for(lambda: self.name() == "codex")
         self.tmux("kill-pane", "-t", pane)
         self.wait_for(lambda: self.name() == "sleep")
         self.assertEqual(self.cli("status").returncode, 0)

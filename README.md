@@ -33,10 +33,10 @@ With [TPM](https://github.com/tmux-plugins/tpm), put this before TPM's `run` lin
 in your tmux config, then press **prefix + I**:
 
 ```tmux
-set -g @plugin 'maksimgurenko/tmux-codex-title#v0.1.0'
+set -g @plugin 'maksimgurenko/tmux-codex-title#v0.1.1'
 ```
 
-For a manual install, clone this repository at `v0.1.0` into
+For a manual install, clone this repository at `v0.1.1` into
 `~/.tmux/plugins/tmux-codex-title`, then add:
 
 ```tmux
@@ -68,7 +68,8 @@ Codex in a split pane does not displace the first instance.
 
 If the label stays `codex`, inspect `tmux display-message -p '#{pane_title}'` in
 that pane. It must contain `Conversation | project`; an unnamed conversation
-uses `codex`. Titles retain any truncation already applied by Codex. An editor
+uses `codex`, including when Codex emits a bare thread UUID. Titles retain any
+truncation already applied by Codex. An editor
 title without that separator leaves the last valid conversation title intact.
 Custom application titles containing the same separator are indistinguishable
 from Codex titles while a Codex process remains in the pane.
