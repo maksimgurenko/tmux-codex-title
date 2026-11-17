@@ -264,5 +264,30 @@ while True:
         self.assertEqual(self.tmux("show-options", "-gqv", plugin.SAVED), self.default)
 
 
+@unittest.skipUnless(shutil.which("tmux") and shutil.which("ps"), "tmux and procps required")
+class TmuxColdStartTest(unittest.TestCase):
+    def test_config_load_keeps_watcher_running_before_first_session(self):
+        with tempfile.TemporaryDirectory(prefix="codex title startup ") as directory:
+            socket = str(Path(directory) / "server.sock")
+            config = Path(directory) / "tmux.conf"
+            entry = shlex.quote(str(ROOT / "codex-title.tmux"))
+            config.write_text(f'run-shell "{entry}"\nrun-shell "sleep 1.2"\n')
+            env = dict(os.environ, XDG_RUNTIME_DIR=directory)
+            env.pop("TMUX", None)
+            env.pop("TMUX_PANE", None)
+            tmux = ["tmux", "-S", socket]
+            try:
+                subprocess.run([*tmux, "-f", str(config), "new-session", "-d", "exec sleep 30"],
+                               env=env, capture_output=True, text=True, timeout=5, check=True)
+                status = subprocess.run(
+                    [sys.executable, "-B", str(ROOT / "scripts/codex_title.py"),
+                     "--socket", socket, "status"],
+                    env=env, capture_output=True, text=True, timeout=5,
+                )
+                self.assertEqual(status.stdout.strip(), "running", status.stderr)
+            finally:
+                subprocess.run([*tmux, "kill-server"], env=env, capture_output=True, timeout=5)
+
+
 if __name__ == "__main__":
     unittest.main()

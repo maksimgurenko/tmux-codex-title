@@ -177,8 +177,11 @@ class Tmux:
     def panes(self):
         fmt = "\t".join(("#{pid}", "#{window_id}", "#{pane_id}", "#{pane_pid}",
                          "#{pane_tty}", "#{automatic-rename}", "#{pane_dead}", "#{pane_title}"))
+        # During config loading the server can be alive before it has a session.
+        # Check for a target in the same command as list-panes to avoid a race.
+        listing = self.run("if-shell", "-F", "#{session_id}", f'list-panes -a -F "{fmt}"')
         panes = []
-        for line in self.run("list-panes", "-a", "-F", fmt).splitlines():
+        for line in listing.splitlines():
             try:
                 server, window, pane, pid, tty, automatic, dead, title = line.split("\t", 7)
                 panes.append(Pane(server, window, pane, int(pid), os.stat(tty).st_rdev,
